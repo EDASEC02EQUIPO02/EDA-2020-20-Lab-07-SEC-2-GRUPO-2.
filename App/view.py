@@ -23,6 +23,7 @@
 import sys
 import config
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import listiterator as it
 from App import controller
 assert config
 
@@ -33,12 +34,32 @@ hace la solicitud al controlador para ejecutar la
 operación seleccionada.
 """
 
+
+
+def printCountryData(author):
+    """
+    Imprime los libros de un autor determinado
+    """
+    lista = []
+    if author:
+        print('Total de crimenes: ' + str(lt.size(author['dateIndex']['lstcrimes'])))
+        iterator = it.newIterator(author['dateIndex'])
+        while it.hasNext(iterator):
+            movie = it.next(iterator)
+
+    else:
+        print('No se encontro el país')
+
+
+
+
 # ___________________________________________________
 #  Ruta a los archivos
 # ___________________________________________________
 
 
 crimefile = 'crime-utf8.csv'
+crimefileus = 'us_accidents_small.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -71,14 +92,26 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de crimenes ....")
+        print("\nCargando información de crimenes ....")
+        controller.loadData(cont, crimefileus)
+        print('Crimenes cargados: ' + str(controller.crimesSize(cont)))
+        print('Altura del arbol: ' + str(controller.indexHeight(cont)))
+        print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
+        print('Menor Llave: ' + str(controller.minKey(cont)))
+        print('Mayor Llave: ' + str(controller.maxKey(cont)))
 
     elif int(inputs[0]) == 3:
-        print("\nBuscando crimenes en un rango de fechas: ")
-
-
+        print("\nBuscando crimenes en una fecha específica: ")
+        initialDate = input("Rango Inicial (YYYY-MM-DD): ")
+        lst = controller.getCrimesByRange(cont, initialDate)
+        #print(lst)
+        print('Total de crimenes: ' + str(lt.size(lst['lstcrimes'])))
+        iterator = it.newIterator(lst['lstcrimes'])
+        while it.hasNext(iterator):
+            crime = it.next(iterator)
+            print(crime['Description'] +', ' + "Su severidad fue de: " + str(crime['Severity']))
     elif int(inputs[0]) == 4:
         print("\nRequerimiento No 1 del reto 3: ")
-
     else:
         sys.exit(0)
 sys.exit(0)
