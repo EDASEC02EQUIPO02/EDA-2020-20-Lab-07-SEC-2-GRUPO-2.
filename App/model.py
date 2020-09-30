@@ -48,12 +48,12 @@ def newAnalyzer():
 
     Retorna el analizador inicializado.
     """
-    analyzer = {'crimes': None,
+    analyzer = {'accidents': None,
                 'dateIndex': None
                 }
 
-    analyzer['crimes'] = lt.newList('SINGLE_LINKED', compareIds)
-    analyzer['dateIndex'] = om.newMap(omaptype='BST',
+    analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds)
+    analyzer['dateIndex'] = om.newMap(omaptype='RBT',
                                       comparefunction=compareDates)
     return analyzer
 
@@ -68,7 +68,7 @@ def newAnalyzer():
 def addCrime(analyzer, crime):
     """
     """
-    lt.addLast(analyzer['crimes'], crime)
+    lt.addLast(analyzer['accidents'], crime)
     updateDateIndex(analyzer['dateIndex'], crime)
     return analyzer
 
@@ -130,19 +130,6 @@ def newDataEntry(crime):
     return entry
 
 
-def newOffenseEntry(offensegrp, crime):
-    """
-    Crea una entrada en el indice por tipo de crimen, es decir en
-    la tabla de hash, que se encuentra en cada nodo del arbol.
-    """
-    ofentry = {'offense': None, 'lstoffenses': None}
-    ofentry['offense'] = offensegrp
-    ofentry['lstoffenses'] = lt.newList('SINGLELINKED', compareOffenses)
-
-
-
-
-
 
 
 
@@ -150,7 +137,7 @@ def crimesSize(analyzer):
     """
     Número de libros en el catago
     """
-    return lt.size(analyzer['crimes'])
+    return lt.size(analyzer['accidents'])
 
 
 def indexHeight(analyzer):
