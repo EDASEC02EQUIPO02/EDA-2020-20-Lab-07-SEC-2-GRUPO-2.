@@ -24,6 +24,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import map as m
+from DISClib.DataStructures import listiterator as it
 import datetime
 from Sorting import shellsort as ls
 
@@ -174,6 +175,30 @@ def getCrimesByRange(analyzer, initialDate):
     #print(fila)
     topSeverity(fila)
     return entry
+
+def getCrimesByRangeFinal(analyzer, initialDate, finalDate):
+    """
+    Retorna el numero de crimenes en un rago de fechas.
+    """
+    dic={}
+    cont=0
+    lst = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    iterator = it.newIterator(lst)
+    while it.hasNext(iterator):
+        crime = it.next(iterator)
+        date2 = datetime.datetime.strptime(str(crime), '%Y-%m-%d')
+        llave = om.get(analyzer['dateIndex'], date2.date())
+        entry = me.getValue(llave)
+        fecha = str(crime)
+        cont+=lt.size(entry['lstcrimes'])
+        if fecha not in dic:
+            dic[fecha] = lt.size(entry['lstcrimes'])
+    m = (max(dic.values()))
+    for i in dic:
+        if m == dic[i]:
+            va = "La fecha con más accidentes es: " + i + ' con una cantidad de: ' + str(dic[i])
+    print("La cantidad total de accidentes anterior a la fecha dada fue de: " + str(cont))
+    print(va)
 
 def topSeverity(lstmovies):
     monika = ls.shellSort(lstmovies, topAccidents)

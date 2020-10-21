@@ -26,6 +26,7 @@ import datetime
 import csv
 from time import process_time
 
+
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 Existen algunas operaciones en las que se necesita invocar
@@ -115,3 +116,14 @@ def getCrimesByRange(analyzer, initialDate):
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
     
     return model.getCrimesByRange(analyzer, initialDate.date())
+
+def getCrimesByRangeFinal(analyzer, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas
+    """
+    fechaI= str(minKey(analyzer))
+    initialDate = datetime.datetime.strptime(fechaI, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    
+    return model.getCrimesByRangeFinal(analyzer, initialDate.date(), finalDate.date())
+

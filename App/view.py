@@ -97,7 +97,10 @@ while True:
             crime = it.next(iterator)
             print("Descripción del accidente: " + crime['Description'] +', ' + "Su severidad fue de: " + str(crime['Severity']))
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nBuscando accidentes anteriores a una fecha específica: ")
+        finalDate = input("Fecha (YYYY-MM-DD): ")
+        lst = controller.getCrimesByRangeFinal(cont, finalDate)
+        #print('Total de accidentes: ' + str(lt.size(lst)))
     else:
         sys.exit(0)
 sys.exit(0)
