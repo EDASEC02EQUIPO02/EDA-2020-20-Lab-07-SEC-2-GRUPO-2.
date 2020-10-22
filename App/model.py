@@ -324,7 +324,7 @@ def getAccidentstimeByRange(analyzer, initialDate, finalDate):
         if i == "4":
             print("Con una severidad de " + i + " son " + str(dicc[i]) + " accidentes" + " con un porcentaje de: " + str(round((dicc[i]/cont), 2)*100) + "%")   
     print("\nTiene un total de: " + str(cont) + " accidentes")
-
+    return None
 
 
 
