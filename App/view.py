@@ -46,6 +46,7 @@ operación seleccionada.
 crimefile = 'crime-utf8.csv'
 crimefileus = 'us_accidents_small.csv'
 accidentsfile = 'US_Accidents_Dec19.csv'
+accidents2016 = 'us_accidents_dis_2016.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -60,6 +61,9 @@ def printMenu():
     print("2- Cargar información de accidentes")
     print("3- Requerimento 1")
     print("4- Requerimento 2")
+    print("5- Requerimento 3")
+    print("6- Requerimento 4")
+    print("7- Requerimento 5 (grupal)")
     print("0- Salir")
     print("*******************************************")
 
@@ -79,25 +83,54 @@ while True:
     elif int(inputs[0]) == 2:
         print("\nCargando información de los accidentes ....")
         print("\nCargando información de los accidentes ....")
-        controller.loadData(cont, crimefileus)
+        controller.loadData(cont, accidentsfile)
         print('Accidentes cargados: ' + str(controller.crimesSize(cont)))
+        print('\nInformación sobre el arbol de fechas: \n')        
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
         print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
         print('Menor Llave: ' + str(controller.minKey(cont)))
         print('Mayor Llave: ' + str(controller.maxKey(cont)))
+        print('\nInformación sobre el arbol de tiempo: \n')
+        print('Altura del arbol: ' + str(controller.indexHeight1(cont)))
+        print('Elementos en el arbol: ' + str(controller.indexSize1(cont)))
+        print('Menor Llave: ' + str(controller.minKey1(cont)))
+        print('Mayor Llave: ' + str(controller.maxKey1(cont)))       
 
     elif int(inputs[0]) == 3:
         print("\nBuscando accidentes en una fecha específica: ")
         initialDate = input("Rango Inicial (YYYY-MM-DD): ")
         lst = controller.getCrimesByRange(cont, initialDate)
-        #print(lst)
         print('Total de accidentes: ' + str(lt.size(lst['lstcrimes'])))
         iterator = it.newIterator(lst['lstcrimes'])
         while it.hasNext(iterator):
             crime = it.next(iterator)
             print("Descripción del accidente: " + crime['Description'] +', ' + "Su severidad fue de: " + str(crime['Severity']))
+    
     elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
+        print("\nBuscando accidentes anteriores a una fecha específica: ")
+        finalDate = input("Fecha (YYYY-MM-DD): ")
+        lst = controller.getCrimesByRangeFinal(cont, finalDate)
+
+    elif int(inputs[0]) == 5:
+        print("\nRequerimiento No 3 del reto 3: ")
+        initialDate = input("Rango Inicial (YYYY-MM-DD): ")
+        finalDate = input("Rango Inicial (YYYY-MM-DD): ")
+        lst= controller.Requerimiento_3(cont, initialDate,finalDate)
+
+    elif int(inputs[0]) == 6:
+        print("\nRequerimiento No 4 del reto 3: ")
+        print("\nBuscando accidentes en un rango de fechas: ")
+        initialDate = input("Rango Inicial (YYYY-MM-DD): ")
+        finalDate = input("Rango Inicial (YYYY-MM-DD): ")
+        lst = controller.getAccidentsByRange(cont, initialDate, finalDate)
+
+    elif int(inputs[0]) == 7:
+        print("\nRequerimiento No 5 del reto 3: ")
+        print("\nBuscando accidentes en un rango de fechas: ")
+        initialDate = input("Rango Inicial (HH:MM:SS): ")
+        finalDate = input("Rango Inicial (HH:MM:SS): ")
+        lst = controller.getAccidentstimeByRange(cont, initialDate, finalDate)
+
     else:
         sys.exit(0)
 sys.exit(0)

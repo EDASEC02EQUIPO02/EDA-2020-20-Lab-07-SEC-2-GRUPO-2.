@@ -24,6 +24,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import map as m
+from DISClib.DataStructures import listiterator as it
 import datetime
 from Sorting import shellsort as ls
 
@@ -49,12 +50,15 @@ def newAnalyzer():
     Retorna el analizador inicializado.
     """
     analyzer = {'accidents': None,
-                'dateIndex': None
+                'dateIndex': None,
+                'hoursIndex': None
                 }
 
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds)
     analyzer['dateIndex'] = om.newMap(omaptype='RBT',
                                       comparefunction=compareDates)
+    analyzer['hoursIndex'] = om.newMap(omaptype='RBT',
+                                      comparefunction=compareDates)                
     return analyzer
 
 # Funciones para agregar informacion al catalogo
@@ -70,8 +74,12 @@ def addCrime(analyzer, crime):
     """
     lt.addLast(analyzer['accidents'], crime)
     updateDateIndex(analyzer['dateIndex'], crime)
+    updateHoursIndex(analyzer['hoursIndex'], crime)
     return analyzer
 
+# ==============================
+# Arbol de fechas
+# ==============================
 
 def updateDateIndex(map, crime):
     """
@@ -90,31 +98,61 @@ def updateDateIndex(map, crime):
         om.put(map, crimedate.date(), datentry)
     else:
         datentry = me.getValue(entry)
-    #addDateIndex(datentry, crime)
     lst = datentry['lstcrimes']
     lt.addLast(lst, crime)
     return map
 
+# ==============================
+# Arbol de tiempo
+# ==============================
 
-def addDateIndex(datentry, crime):
-    """
-    Actualiza un indice de tipo de crimenes.  Este indice tiene una lista
-    de crimenes y una tabla de hash cuya llave es el tipo de crimen y
-    el valor es una lista con los crimenes de dicho tipo en la fecha que
-    se está consultando (dada por el nodo del arbol)
-    """
-    lst = datentry['lstcrimes']
-    lt.addLast(lst, crime)
-    offenseIndex = datentry['offenseIndex']
-    offentry = m.get(offenseIndex, crime['OFFENSE_CODE_GROUP'])
-    if (offentry is None):
-        entry = newOffenseEntry(crime['OFFENSE_CODE_GROUP'], crime)
-        lt.addLast(entry['lstoffenses'], crime)
-        m.put(offenseIndex, crime['OFFENSE_CODE_GROUP'], entry)
+def updateHoursIndex(map, crime):
+    occurreddate = crime['Start_Time']
+    crimedate = datetime.datetime.strptime(occurreddate, '%Y-%m-%d %H:%M:%S')
+    tiempos = redondear_horas(crimedate.time())
+    entry = om.get(map, tiempos)
+    if entry is None:
+        datentry = newDataHours(crime)
+        om.put(map, tiempos, datentry)
     else:
-        entry = me.getValue(offentry)
-        lt.addLast(entry['lstoffenses'], crime)
-    return datentry
+        datentry = me.getValue(entry)
+    lst = datentry['lstaccidents']
+    lt.addLast(lst, crime)
+    return map
+
+# ==============================
+# Función de redondeo
+# ==============================
+
+def redondear_horas(tiempo):
+    tiempo = tiempo.replace(second = 0)
+    minuto = tiempo.minute
+    h = tiempo.hour + 1
+    if minuto <= 15:
+        tiempo = tiempo.replace(minute= 0)
+    elif minuto > 15 and minuto <= 45:
+        tiempo = tiempo.replace(minute= 30)
+    elif minuto > 45 and minuto <= 59:
+        if h == 24:
+            h = 0
+        tiempo = tiempo.replace(hour= h) 
+        tiempo = tiempo.replace(minute= 0)
+    return tiempo
+
+# ==============================
+# Diccionarios para almacenar información
+# ==============================
+
+
+def newDataHours(crime):
+    """
+    Crea una entrada en el indice por fechas, es decir en el arbol
+    binario.
+    """
+    entry = {'lstaccidents': None}
+
+    entry['lstaccidents'] = lt.newList('SINGLE_LINKED', compareDates)
+    return entry
 
 
 def newDataEntry(crime):
@@ -122,47 +160,62 @@ def newDataEntry(crime):
     Crea una entrada en el indice por fechas, es decir en el arbol
     binario.
     """
-    entry = {'offenseIndex': None, 'lstcrimes': None}
+    entry = {'states': None, 'lstcrimes': None}
     #entry['offenseIndex'] = m.newMap(numelements=30,
                                      #maptype='PROBING',
-                                     #comparefunction=compareOffenses)
+                                     #comparefunction=compareIds)
     entry['lstcrimes'] = lt.newList('SINGLE_LINKED', compareDates)
     return entry
 
 
-
+# ==============================
+# Funciones de datos de los arboles
+# ==============================
 
 
 def crimesSize(analyzer):
-    """
-    Número de libros en el catago
-    """
     return lt.size(analyzer['accidents'])
 
 
 def indexHeight(analyzer):
-    """Numero de autores leido
-    """
     return om.height(analyzer['dateIndex'])
 
 
 def indexSize(analyzer):
-    """Numero de autores leido
-    """
     return om.size(analyzer['dateIndex'])
 
 
 def minKey(analyzer):
-    """Numero de autores leido
-    """
     return om.minKey(analyzer['dateIndex'])
 
 
 def maxKey(analyzer):
-    """Numero de autores leido
-    """
     return om.maxKey(analyzer['dateIndex'])
 
+
+
+
+def indexHeight1(analyzer):
+    return om.height(analyzer['hoursIndex'])
+
+
+def indexSize1(analyzer):
+    return om.size(analyzer['hoursIndex'])
+
+
+def minKey1(analyzer):
+    return om.minKey(analyzer['hoursIndex'])
+
+
+def maxKey1(analyzer):
+    return om.maxKey(analyzer['hoursIndex'])
+
+
+
+
+# ==============================
+# Requerimiento 1
+# ==============================
 
 def getCrimesByRange(analyzer, initialDate):
     """
@@ -171,9 +224,165 @@ def getCrimesByRange(analyzer, initialDate):
     lst = om.get(analyzer['dateIndex'], initialDate)
     entry = me.getValue(lst)
     fila = entry['lstcrimes']
-    #print(fila)
     topSeverity(fila)
     return entry
+
+# ==============================
+# Requerimiento 2
+# ==============================
+
+def getCrimesByRangeFinal(analyzer, initialDate, finalDate):
+    """
+    Retorna el numero de crimenes en un rago de fechas.
+    """
+    dic={}
+    cont=0
+    lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    iterator = it.newIterator(lst)
+    while it.hasNext(iterator):
+        crime = it.next(iterator)
+        date2 = datetime.datetime.strptime(str(crime), '%Y-%m-%d')
+        llave = om.get(analyzer['dateIndex'], date2.date())
+        entry = me.getValue(llave)
+        fecha = str(crime)
+        cont+=lt.size(entry['lstcrimes'])
+        if fecha not in dic:
+            dic[fecha] = lt.size(entry['lstcrimes'])
+    m = (max(dic.values()))
+    for i in dic:
+        if m == dic[i]:
+            va = "La fecha con más accidentes es: " + i + ' con una cantidad de: ' + str(dic[i])
+    print("La cantidad total de accidentes anterior a la fecha dada fue de: " + str(cont))
+    print(va)
+
+# ==============================
+# Requerimiento 3
+# ==============================
+def Req_3(analyzer, initialDate, finalDate):
+    """
+    Retorna el numero de crimenes en un rago de fechas.
+    """
+    dicc={}
+    cont=0 
+    lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    iterator= it.newIterator(lst)
+    while it.hasNext(iterator):
+        crime= it.next(iterator)
+        date2= datetime.datetime.strptime(str(crime), "%Y-%m-%d")
+        llave= om.get(analyzer["dateIndex"], date2.date())
+        entry=me.getValue(llave)
+        cont+=lt.size(entry["lstcrimes"])
+        iterator2 = it.newIterator(entry['lstcrimes'])
+        while it.hasNext(iterator2):
+            crime2 = it.next(iterator2)
+            estado = str(crime2['Severity'])
+            if estado in dicc:
+                dicc[estado] += 1
+            else:
+                dicc[estado] = 1
+    l = (max(dicc.values()))
+    for i in dicc:
+        if l == dicc[i]:
+            ve = "\n La categoria con más accidentes en el rango es: " + i + ' con una cantidad de: ' + str(dicc[i])
+    print(dicc)
+    print(ve)
+    print("La cantidad de accidentes en el rango dado fue de: " + str(cont))
+
+
+# ==============================
+# Requerimiento 5
+# ==============================
+
+def getAccidentstimeByRange(analyzer, initialDate, finalDate):
+    dicc = {}
+    cont = 0
+    lst = om.keys(analyzer['hoursIndex'], initialDate, finalDate)
+    iterator = it.newIterator(lst)
+    while it.hasNext(iterator):
+        crime = it.next(iterator)
+        date2 = datetime.datetime.strptime(str(crime), '%H:%M:%S')
+        llave = om.get(analyzer['hoursIndex'], date2.time())
+        entry = me.getValue(llave)
+        tiempo = str(crime)
+        cont += lt.size(entry['lstaccidents'])
+        iterator2 = it.newIterator(entry['lstaccidents'])
+        while it.hasNext(iterator2):
+            crime2 = it.next(iterator2)
+            estado = crime2['Severity']
+            if estado in dicc:
+                dicc[estado] += 1
+            else:
+                dicc[estado] = 1
+    print("En el rango con tiempo se obtuvieron los siguientes datos: \n")
+    for i in dicc:
+        if i == "1":
+            print("Con una severidad de " + i + " son " + str(dicc[i]) + " accidentes" + " con un porcentaje de: " + str(round((dicc[i]/cont), 2)*100) + "%")
+        if i == "2":
+            print("Con una severidad de " + i + " son " + str(dicc[i]) + " accidentes" + " con un porcentaje de: " + str(round((dicc[i]/cont), 2)*100) + "%")
+        if i == "3":
+            print("Con una severidad de " + i + " son " + str(dicc[i]) + " accidentes" + " con un porcentaje de: " + str(round((dicc[i]/cont), 2)*100) + "%")
+        if i == "4":
+            print("Con una severidad de " + i + " son " + str(dicc[i]) + " accidentes" + " con un porcentaje de: " + str(round((dicc[i]/cont), 2)*100) + "%")   
+    print("\nTiene un total de: " + str(cont) + " accidentes")
+
+
+
+
+# ==============================
+# Requerimiento 4
+# ==============================
+
+
+def getAccidentsByRange(analyzer, initialDate, finalDate):
+    """
+    Retorna el numero de crimenes en un rago de fechas.
+    """
+    dicc = {}
+    dicct = {}
+    lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    iterator = it.newIterator(lst)
+    while it.hasNext(iterator):
+        crime = it.next(iterator)
+        date2 = datetime.datetime.strptime(str(crime), '%Y-%m-%d')
+        llave = om.get(analyzer['dateIndex'], date2.date())
+        entry = me.getValue(llave)
+        fecha = str(crime)
+        if fecha not in dicct:
+            dicct[fecha] = lt.size(entry['lstcrimes'])
+        iterator2 = it.newIterator(entry['lstcrimes'])
+        while it.hasNext(iterator2):
+            crime2 = it.next(iterator2)
+            estado = crime2['State']
+            if estado in dicc:
+                dicc[estado] += 1
+            else:
+                dicc[estado] = 1
+    m = (max(dicct.values()))
+    for i in dicct:
+        if m == dicct[i]:
+            va = "\nLa fecha con más accidentes en el rango es: " + i + ' con una cantidad de: ' + str(dicct[i])
+    print(va)
+    l = (max(dicc.values()))
+    for i in dicc:
+        if l == dicc[i]:
+            ve = "\nEl estado con más accidentes en el rango es: " + i + ' con una cantidad de: ' + str(dicc[i])
+    print(ve)
+    return None
+
+
+
+
+
+
+
+
+
+
+
+# ==============================
+# Funciones de Ordenamiento
+# ==============================
+
 
 def topSeverity(lstmovies):
     monika = ls.shellSort(lstmovies, topAccidents)

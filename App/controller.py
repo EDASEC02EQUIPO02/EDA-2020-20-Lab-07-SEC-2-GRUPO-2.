@@ -74,38 +74,42 @@ def loadData(analyzer, crimesfile):
 
 
 def crimesSize(analyzer):
-    """
-    Numero de crimenes leidos
-    """
     return model.crimesSize(analyzer)
 
 
 def indexHeight(analyzer):
-    """
-    Altura del indice (arbol)
-    """
     return model.indexHeight(analyzer)
 
 
 def indexSize(analyzer):
-    """
-    Numero de nodos en el arbol
-    """
     return model.indexSize(analyzer)
 
 
 def minKey(analyzer):
-    """
-    La menor llave del arbol
-    """
     return model.minKey(analyzer)
 
 
 def maxKey(analyzer):
-    """
-    La mayor llave del arbol
-    """
     return model.maxKey(analyzer)
+
+
+
+def indexHeight1(analyzer):
+    return model.indexHeight1(analyzer)
+
+
+def indexSize1(analyzer):
+    return model.indexSize1(analyzer)
+
+
+def minKey1(analyzer):
+    return model.minKey1(analyzer)
+
+
+def maxKey1(analyzer):
+    return model.maxKey1(analyzer)
+
+
 
 
 def getCrimesByRange(analyzer, initialDate):
@@ -115,3 +119,45 @@ def getCrimesByRange(analyzer, initialDate):
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
     
     return model.getCrimesByRange(analyzer, initialDate.date())
+
+def getCrimesByRangeFinal(analyzer, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas
+    """
+    fechaI= str(minKey(analyzer))
+    initialDate = datetime.datetime.strptime(fechaI, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+
+    return model.getCrimesByRangeFinal(analyzer, initialDate.date(), finalDate.date())
+
+def Requerimiento_3(analyzer, initialDate, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas
+    """
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.Req_3(analyzer, initialDate.date(),
+                                  finalDate.date())
+
+
+
+def getAccidentsByRange(analyzer, initialDate, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas
+    """
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.getAccidentsByRange(analyzer, initialDate.date(),
+                                  finalDate.date())
+
+
+def getAccidentstimeByRange(analyzer, initialDate, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas
+    """
+    initialDate = datetime.datetime.strptime(initialDate, '%H:%M:%S')
+    finalDate = datetime.datetime.strptime(finalDate, '%H:%M:%S')
+    inicio = model.redondear_horas(initialDate.time())
+    final = model.redondear_horas(finalDate.time())
+    return model.getAccidentstimeByRange(analyzer, inicio,
+                                  final)
