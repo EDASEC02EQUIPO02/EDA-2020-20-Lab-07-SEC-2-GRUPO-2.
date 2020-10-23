@@ -27,6 +27,7 @@ from DISClib.ADT import map as m
 from DISClib.DataStructures import listiterator as it
 import datetime
 from Sorting import shellsort as ls
+from math import radians, cos, sin, asin, sqrt 
 
 assert config
 
@@ -221,11 +222,14 @@ def getCrimesByRange(analyzer, initialDate):
     """
     Retorna el numero de crimenes en un rago de fechas.
     """
-    lst = om.get(analyzer['dateIndex'], initialDate)
-    entry = me.getValue(lst)
-    fila = entry['lstcrimes']
-    topSeverity(fila)
-    return entry
+    if om.get(analyzer['dateIndex'], initialDate)==None:
+        print("")
+    else:
+        lst = om.get(analyzer['dateIndex'], initialDate)
+        entry = me.getValue(lst)
+        fila = entry['lstcrimes']
+        topSeverity(fila)
+        return entry
 
 # ==============================
 # Requerimiento 2
@@ -264,29 +268,32 @@ def Req_3(analyzer, initialDate, finalDate):
     """
     dicc={}
     cont=0 
-    lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
-    iterator= it.newIterator(lst)
-    while it.hasNext(iterator):
-        crime= it.next(iterator)
-        date2= datetime.datetime.strptime(str(crime), "%Y-%m-%d")
-        llave= om.get(analyzer["dateIndex"], date2.date())
-        entry=me.getValue(llave)
-        cont+=lt.size(entry["lstcrimes"])
-        iterator2 = it.newIterator(entry['lstcrimes'])
-        while it.hasNext(iterator2):
-            crime2 = it.next(iterator2)
-            estado = str(crime2['Severity'])
-            if estado in dicc:
-                dicc[estado] += 1
-            else:
-                dicc[estado] = 1
-    l = (max(dicc.values()))
-    for i in dicc:
-        if l == dicc[i]:
-            ve = "\n La categoria con más accidentes en el rango es: " + i + ' con una cantidad de: ' + str(dicc[i])
-    print(dicc)
-    print(ve)
-    print("La cantidad de accidentes en el rango dado fue de: " + str(cont))
+    if om.keys(analyzer['dateIndex'], initialDate, finalDate)==None:
+        print("")
+    else:
+        lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+        iterator= it.newIterator(lst)
+        while it.hasNext(iterator):
+            crime= it.next(iterator)
+            date2= datetime.datetime.strptime(str(crime), "%Y-%m-%d")
+            llave= om.get(analyzer["dateIndex"], date2.date())
+            entry=me.getValue(llave)
+            cont+=lt.size(entry["lstcrimes"])
+            iterator2 = it.newIterator(entry['lstcrimes'])
+            while it.hasNext(iterator2):
+                crime2 = it.next(iterator2)
+                estado = str(crime2['Severity'])
+                if estado in dicc:
+                    dicc[estado] += 1
+                else:
+                    dicc[estado] = 1
+        l = (max(dicc.values()))
+        for i in dicc:
+            if l == dicc[i]:
+                ve = "\nLa categoria con más accidentes en el rango es: " + i + ' con una cantidad de: ' + str(dicc[i])
+        print(ve)
+        print("La cantidad de accidentes en el rango dado fue de: " + str(cont))
+        return lst
 
 
 # ==============================
@@ -370,11 +377,31 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
     return None
 
 
+#Requerimiento 6
 
+"""def calcularDistancia(lat1, lat2, lon1, lon2): 
+    lon1 = radians(lon1) 
+    lon2 = radians(lon2) 
+    lat1 = radians(lat1) 
+    lat2 = radians(lat2) 
+       
+    # Haversine formula  
+    dlon = lon2 - lon1  
+    dlat = lat2 - lat1 
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+  
+    c = 2 * asin(sqrt(a))  
+     
+    # Radius of earth in kilometers. Use 3956 for miles 
+    r = 6371
+       
+    # calculate the result 
+    return(c * r) 
 
-
-
-
+def getAccidentsByZone(analyzer, latitud, longitud, radio):
+    lst = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    print(lst)
+    iterator = it.newIterator(lst)"""
 
 
 

@@ -82,8 +82,7 @@ while True:
 
     elif int(inputs[0]) == 2:
         print("\nCargando información de los accidentes ....")
-        print("\nCargando información de los accidentes ....")
-        controller.loadData(cont, accidentsfile)
+        controller.loadData(cont, accidents2016)
         print('Accidentes cargados: ' + str(controller.crimesSize(cont)))
         print('\nInformación sobre el arbol de fechas: \n')        
         print('Altura del arbol: ' + str(controller.indexHeight(cont)))
@@ -98,38 +97,52 @@ while True:
 
     elif int(inputs[0]) == 3:
         print("\nBuscando accidentes en una fecha específica: ")
-        initialDate = input("Rango Inicial (YYYY-MM-DD): ")
+        initialDate = input("Fecha deseada (YYYY-MM-DD): ")
         lst = controller.getCrimesByRange(cont, initialDate)
-        print('Total de accidentes: ' + str(lt.size(lst['lstcrimes'])))
-        iterator = it.newIterator(lst['lstcrimes'])
-        while it.hasNext(iterator):
-            crime = it.next(iterator)
-            print("Descripción del accidente: " + crime['Description'] +', ' + "Su severidad fue de: " + str(crime['Severity']))
+        if lst==None:
+            print("En la fecha ingresada no se presentaron crímenes")
+        else:
+            print('Total de accidentes: ' + str(lt.size(lst['lstcrimes'])))
+            iterator = it.newIterator(lst['lstcrimes'])
+            while it.hasNext(iterator):
+                crime = it.next(iterator)
+                print("Descripción del accidente: " + crime['Description'] +', ' + "Su severidad fue de: " + str(crime['Severity']))
     
     elif int(inputs[0]) == 4:
         print("\nBuscando accidentes anteriores a una fecha específica: ")
-        finalDate = input("Fecha (YYYY-MM-DD): ")
+        finalDate = input("Fecha deseada (YYYY-MM-DD): ")
         lst = controller.getCrimesByRangeFinal(cont, finalDate)
 
     elif int(inputs[0]) == 5:
         print("\nRequerimiento No 3 del reto 3: ")
         initialDate = input("Rango Inicial (YYYY-MM-DD): ")
-        finalDate = input("Rango Inicial (YYYY-MM-DD): ")
+        finalDate = input("Rango Final (YYYY-MM-DD): ")
         lst= controller.Requerimiento_3(cont, initialDate,finalDate)
+        if lst==None:
+            print("No hubo crímenes en dicho rango de fechas")
+        
+            
 
     elif int(inputs[0]) == 6:
         print("\nRequerimiento No 4 del reto 3: ")
         print("\nBuscando accidentes en un rango de fechas: ")
         initialDate = input("Rango Inicial (YYYY-MM-DD): ")
-        finalDate = input("Rango Inicial (YYYY-MM-DD): ")
+        finalDate = input("Rango Final (YYYY-MM-DD): ")
         lst = controller.getAccidentsByRange(cont, initialDate, finalDate)
 
     elif int(inputs[0]) == 7:
         print("\nRequerimiento No 5 del reto 3: ")
         print("\nBuscando accidentes en un rango de fechas: ")
         initialDate = input("Rango Inicial (HH:MM:SS): ")
-        finalDate = input("Rango Inicial (HH:MM:SS): ")
+        finalDate = input("Rango Final (HH:MM:SS): ")
         lst = controller.getAccidentstimeByRange(cont, initialDate, finalDate)
+
+    elif int(inputs[0]) == 8:
+        print("\nRequerimiento No 6 del reto 3: ")
+        latitud = input("Ingrese la latitud: ")
+        longitud = input("Ingrese la longitud: ")
+        radio = input("Ingrese el radio de búsqueda: ")
+        lst = controller.getAccidentsByZone(cont, latitud, longitud, radio)
 
     else:
         sys.exit(0)

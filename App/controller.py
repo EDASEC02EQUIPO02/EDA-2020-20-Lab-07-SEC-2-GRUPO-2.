@@ -162,3 +162,5 @@ def getAccidentstimeByRange(analyzer, initialDate, finalDate):
     final = model.redondear_horas(finalDate.time())
     return model.getAccidentstimeByRange(analyzer, inicio,
                                   final)
+
+#def getAccidentsByZone(analyzer, latitud, longitud, radio):
